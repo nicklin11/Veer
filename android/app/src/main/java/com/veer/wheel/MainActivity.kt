@@ -64,6 +64,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var currentRoll = 0f
 
     @Volatile private var running = true
+    @Volatile private var paused = false
     @Volatile private var targetIp = "192.168.1.100"
     @Volatile private var targetPort = 5555
 
@@ -117,7 +118,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 PopupMenu(this@MainActivity, statusView).apply {
                     menu.add(0, 1, 0, "⚙ Подключение")
                     menu.add(0, 2, 0, "Центр")
-                    menu.add(0, 3, 0, "Выход")
+                    menu.add(0, 3, 0, if (paused) "▶ Продолжить" else "⏸ Пауза")
+                    menu.add(0, 4, 0, "✕ Отключиться")
+                    menu.add(0, 5, 0, "Выход")
                     setOnMenuItemClickListener { item ->
                         when (item.itemId) {
                             1 -> { showConnectDialog(); true }
@@ -126,7 +129,20 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                 statusView.text = "центр установлен"
                                 true
                             }
-                            3 -> { finishAffinity(); true }
+                            3 -> {
+                                paused = !paused
+                                statusView.text = if (paused) "пауза" else "продолжение"
+                                true
+                            }
+                            4 -> {
+                                // Просто сбрасываем состояние — sender сам перестанет слать
+                                // когда lastAckMs устареет
+                                lastAckMs = 0L
+                                connected = false
+                                statusView.text = "отключено"
+                                true
+                            }
+                            5 -> { finishAffinity(); true }
                             else -> false
                         }
                     }
@@ -415,6 +431,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             socket.soTimeout = 1
             var tick = 0
             while (running) {
+                if (paused) {
+                    try { Thread.sleep(100); } catch (_: InterruptedException) { break }
+                    continue
+                }
                 try {
                     val addr = InetAddress.getByName(targetIp)
                     // Locale.US обязательно: иначе в ru_RU дроби через запятую

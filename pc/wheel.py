@@ -55,17 +55,16 @@ C = Color
 #
 # Оси как у реального руля (Logitech G25/G27) для совместимости
 # с Assetto Corsa и другими симрейсингами:
-#   ABS_X   = руль (-32767..32767)
-#   ABS_WHEEL = руль (дубль для тех кто читает wheel)
-#   ABS_Y   = газ (32767 = отпущено, 0 = полный газ) — как у G25
-#   ABS_RZ  = тормоз (32767 = отпущено, 0 = полный тормоз) — как у G25
+#   ABS_WHEEL = руль (-32767..32767)
+#   ABS_Y     = газ (32767 = отпущено, 0 = полный газ)
+#   ABS_RZ    = тормоз (32767 = отпущено, 0 = полный тормоз)
 #   ABS_GAS / ABS_BRAKE — Steam Input триггеры (0..255)
-#   ABS_Z / ABS_RZ (0..255) — запасные оси
+#   ABS_Z     — запасная ось газа
+# ABS_X намеренно убран — он ломает навигацию в меню игр.
 CAP = {
     e.EV_KEY: [e.BTN_A, e.BTN_B, e.BTN_TRIGGER, e.BTN_THUMB],
     e.EV_ABS: [
-        (e.ABS_X,     AbsInfo(0, -32767, 32767, 0, 0, 0)),  # руль
-        (e.ABS_WHEEL, AbsInfo(0, -32767, 32767, 0, 0, 0)),  # руль (wheel)
+        (e.ABS_WHEEL, AbsInfo(0, -32767, 32767, 0, 0, 0)),  # руль
         (e.ABS_Y,     AbsInfo(0, 0, 32767, 0, 0, 0)),       # газ (0=нажато)
         (e.ABS_RZ,    AbsInfo(0, 0, 32767, 0, 0, 0)),       # тормоз (0=нажато)
         (e.ABS_GAS,   AbsInfo(0, 0, 255, 0, 0, 0)),         # газ (Steam trigger)
@@ -450,8 +449,7 @@ def main():
             # Газ/тормоз инвертированы для ABS_Y/ABS_RZ как у G25: 0 = нажато
             gas_int = int((1.0 - clamp(gas, 0.0, 1.0)) * 32767)
             brake_int = int((1.0 - clamp(brake, 0.0, 1.0)) * 32767)
-            ui.write(e.EV_ABS, e.ABS_X,     steer_int)  # руль
-            ui.write(e.EV_ABS, e.ABS_WHEEL, steer_int)  # руль (wheel)
+            ui.write(e.EV_ABS, e.ABS_WHEEL, steer_int)  # руль
             ui.write(e.EV_ABS, e.ABS_Y,     gas_int)    # газ (G25-style)
             ui.write(e.EV_ABS, e.ABS_RZ,    brake_int)  # тормоз (G25-style)
             ui.write(e.EV_ABS, e.ABS_GAS,   g)          # Steam trigger (RT)

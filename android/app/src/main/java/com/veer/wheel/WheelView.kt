@@ -73,7 +73,8 @@ class WheelView @JvmOverloads constructor(
     private val spokePath = Path()
 
     fun setSteer(value: Float) {
-        val clamped = value.coerceIn(-1f, 1f)
+        // Инвертируем: наклон телефона влево = руль влево на экране
+        val clamped = (-value).coerceIn(-1f, 1f)
         if (kotlin.math.abs(clamped - steer) > 0.0005f) {
             steer = clamped
             invalidateOnUi()
