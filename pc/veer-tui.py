@@ -55,6 +55,7 @@ C = Color
 CAP = {
     e.EV_KEY: [e.BTN_A, e.BTN_B, e.BTN_TRIGGER, e.BTN_THUMB],
     e.EV_ABS: [
+        (e.ABS_X,     AbsInfo(0, -32767, 32767, 0, 0, 0)),
         (e.ABS_WHEEL, AbsInfo(0, -32767, 32767, 0, 0, 0)),
         (e.ABS_Y,     AbsInfo(0, 0, 32767, 0, 0, 0)),
         (e.ABS_RZ,    AbsInfo(0, 0, 32767, 0, 0, 0)),
@@ -64,6 +65,9 @@ CAP = {
     ],
     e.EV_FF: [e.FF_RUMBLE],
 }
+
+# Порог: ниже него ABS_X не пишем (мертвая зона в меню).
+STEER_DEAD = 300
 
 
 def clamp(v, lo, hi):
@@ -475,6 +479,8 @@ def run_tui(port):
             b_ = int(clamp(brake, 0.0, 1.0) * 255)
             gas_int = int((1.0 - clamp(gas, 0.0, 1.0)) * 32767)
             brake_int = int((1.0 - clamp(brake, 0.0, 1.0)) * 32767)
+            if abs(steer_int) > STEER_DEAD:
+                ui.write(e.EV_ABS, e.ABS_X, steer_int)
             ui.write(e.EV_ABS, e.ABS_WHEEL, steer_int)
             ui.write(e.EV_ABS, e.ABS_Y,     gas_int)
             ui.write(e.EV_ABS, e.ABS_RZ,    brake_int)
@@ -609,6 +615,8 @@ def run_notui(port, debug=False):
             steer_int = int(clamp(steer, -1.0, 1.0) * 32767)
             gas_int = int((1.0 - clamp(gas, 0.0, 1.0)) * 32767)
             brake_int = int((1.0 - clamp(brake, 0.0, 1.0)) * 32767)
+            if abs(steer_int) > STEER_DEAD:
+                ui.write(e.EV_ABS, e.ABS_X, steer_int)
             ui.write(e.EV_ABS, e.ABS_WHEEL, steer_int)
             ui.write(e.EV_ABS, e.ABS_Y,     gas_int)
             ui.write(e.EV_ABS, e.ABS_RZ,    brake_int)

@@ -55,16 +55,24 @@ C = Color
 #
 # Оси как у реального руля (Logitech G25/G27) для совместимости
 # с Assetto Corsa и другими симрейсингами:
-#   ABS_WHEEL = руль (-32767..32767)
+#   ABS_X     = руль (-32767..32767) — нужен игре, но дёргает меню.
+#   ABS_WHEEL = руль (-32767..32767) — основная ось руля.
 #   ABS_Y     = газ (32767 = отпущено, 0 = полный газ)
 #   ABS_RZ    = тормоз (32767 = отпущено, 0 = полный тормоз)
 #   ABS_GAS / ABS_BRAKE — Steam Input триггеры (0..255)
 #   ABS_Z     — запасная ось газа
-# ABS_X намеренно убран — он ломает навигацию в меню игр.
+#
+# Рулевая ось (ABS_X/ABS_WHEEL) полностью отделена от газа (ABS_Y/ABS_GAS)
+# и тормоза (ABS_RZ/ABS_BRAKE) — они на разных кодах осей и не пересекаются.
+#
+# Чтобы ABS_X не дёргал курсор в меню, события ABS_X пишутся ТОЛЬКО при
+# реальном повороте (|steer| > порога). В меню телефон лежит — steer≈0,
+# событий ABS_X нет, курсор спокоен. В игре руль крутится — ось работает.
 CAP = {
     e.EV_KEY: [e.BTN_A, e.BTN_B, e.BTN_TRIGGER, e.BTN_THUMB],
     e.EV_ABS: [
-        (e.ABS_WHEEL, AbsInfo(0, -32767, 32767, 0, 0, 0)),  # руль
+        (e.ABS_X,     AbsInfo(0, -32767, 32767, 0, 0, 0)),  # руль
+        (e.ABS_WHEEL, AbsInfo(0, -32767, 32767, 0, 0, 0)),  # руль (wheel)
         (e.ABS_Y,     AbsInfo(0, 0, 32767, 0, 0, 0)),       # газ (0=нажато)
         (e.ABS_RZ,    AbsInfo(0, 0, 32767, 0, 0, 0)),       # тормоз (0=нажато)
         (e.ABS_GAS,   AbsInfo(0, 0, 255, 0, 0, 0)),         # газ (Steam trigger)
@@ -73,6 +81,9 @@ CAP = {
     ],
     e.EV_FF: [e.FF_RUMBLE],
 }
+
+# Порог: ниже него ABS_X не пишем (мертвая зона в меню).
+STEER_DEAD = 300
 
 
 def clamp(v, lo, hi):
@@ -449,7 +460,11 @@ def main():
             # Газ/тормоз инвертированы для ABS_Y/ABS_RZ как у G25: 0 = нажато
             gas_int = int((1.0 - clamp(gas, 0.0, 1.0)) * 32767)
             brake_int = int((1.0 - clamp(brake, 0.0, 1.0)) * 32767)
-            ui.write(e.EV_ABS, e.ABS_WHEEL, steer_int)  # руль
+            # ABS_X только при реальном повороте — в меню (телефон лежит,
+            # steer≈0) событий нет, курсор не бегает. В игре ось работает.
+            if abs(steer_int) > STEER_DEAD:
+                ui.write(e.EV_ABS, e.ABS_X, steer_int)
+            ui.write(e.EV_ABS, e.ABS_WHEEL, steer_int)  # руль (wheel)
             ui.write(e.EV_ABS, e.ABS_Y,     gas_int)    # газ (G25-style)
             ui.write(e.EV_ABS, e.ABS_RZ,    brake_int)  # тормоз (G25-style)
             ui.write(e.EV_ABS, e.ABS_GAS,   g)          # Steam trigger (RT)
