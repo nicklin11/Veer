@@ -18,6 +18,7 @@ Android-приложение превращает смартфон в **бесп
 - 🌀 **Виброотдача** — игра шлёт rumble → вибрация телефона
 - 🎯 **Совместимость со Steam Input** — триггеры газ/тормоз работают сразу
 - 🕶️ **VR-ready** — кнопок на главном экране нет, меню через кнопку «Назад»
+- 🖥️ **TUI-дашборд** — `pc/veer-tui.py` с实时-отображением руля, педалей и статистики
 
 ## Быстрый старт
 
@@ -34,8 +35,10 @@ echo 'KERNEL=="uinput", MODE="0660", GROUP="input", OPTIONS+="static_node=uinput
 sudo usermod -aG input $USER
 # перелогиниться
 
-# Запуск
-python pc/wheel.py
+# Запуск (выбери один)
+python pc/wheel.py              # обычный лог
+python pc/veer-tui.py            # TUI-дашборд (curses)
+python pc/veer-tui.py --no-tui   # TUI-скрипт в режиме лога
 ```
 
 Если есть фаервол — открой UDP 5555–5556:
@@ -97,6 +100,7 @@ APK: `android/app/build/outputs/apk/debug/app-debug.apk`
 Veer/
 ├── pc/
 │   ├── wheel.py              # Linux-приёмник (виртуальный руль)
+│   ├── veer-tui.py           # TUI-дашборд (curses)
 │   └── requirements.txt
 ├── android/
 │   ├── app/src/main/         # Kotlin-приложение
