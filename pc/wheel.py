@@ -52,22 +52,25 @@ C = Color
 
 
 # Описание виртуального устройства: ось руля + аналоговые газ/тормоз + кнопки.
-# Педали дублируются на两组 осей для максимальной совместимости:
-#   ABS_GAS/ABS_BRAKE — Steam Input мапит их в триггеры Xbox-контроллера;
-#   ABS_Z/ABS_RZ      — стандартные «колёсные» оси, их читают симрейсинги
-#                       напрямую через evdev (когда Steam Input выключен).
-# Руль дублируется на ABS_X (джойстик) и ABS_WHEEL (руль) — некоторые
-# симрейсинги (например, Live for Speed, Richard Burns Rally) читают
-# только ABS_WHEEL, а ABS_X игнорируют.
+#
+# Оси как у реального руля (Logitech G25/G27) для совместимости
+# с Assetto Corsa и другими симрейсингами:
+#   ABS_X   = руль (-32767..32767)
+#   ABS_WHEEL = руль (дубль для тех кто читает wheel)
+#   ABS_Y   = газ (32767 = отпущено, 0 = полный газ) — как у G25
+#   ABS_RZ  = тормоз (32767 = отпущено, 0 = полный тормоз) — как у G25
+#   ABS_GAS / ABS_BRAKE — Steam Input триггеры (0..255)
+#   ABS_Z / ABS_RZ (0..255) — запасные оси
 CAP = {
     e.EV_KEY: [e.BTN_A, e.BTN_B, e.BTN_TRIGGER, e.BTN_THUMB],
     e.EV_ABS: [
-        (e.ABS_X,     AbsInfo(0, -32767, 32767, 0, 0, 0)),  # руль (джойстик)
+        (e.ABS_X,     AbsInfo(0, -32767, 32767, 0, 0, 0)),  # руль
         (e.ABS_WHEEL, AbsInfo(0, -32767, 32767, 0, 0, 0)),  # руль (wheel)
-        (e.ABS_GAS,   AbsInfo(0, 0, 255, 0, 0, 0)),         # газ  (Steam trigger)
+        (e.ABS_Y,     AbsInfo(0, 0, 32767, 0, 0, 0)),       # газ (0=нажато)
+        (e.ABS_RZ,    AbsInfo(0, 0, 32767, 0, 0, 0)),       # тормоз (0=нажато)
+        (e.ABS_GAS,   AbsInfo(0, 0, 255, 0, 0, 0)),         # газ (Steam trigger)
         (e.ABS_BRAKE, AbsInfo(0, 0, 255, 0, 0, 0)),         # тормоз (Steam trigger)
-        (e.ABS_Z,     AbsInfo(0, 0, 255, 0, 0, 0)),         # газ  (wheel evdev)
-        (e.ABS_RZ,    AbsInfo(0, 0, 255, 0, 0, 0)),         # тормоз (wheel evdev)
+        (e.ABS_Z,     AbsInfo(0, 0, 255, 0, 0, 0)),         # газ (запас)
     ],
     e.EV_FF: [e.FF_RUMBLE],
 }
@@ -444,12 +447,16 @@ def main():
             g = int(clamp(gas,   0.0, 1.0) * 255)
             b_ = int(clamp(brake, 0.0, 1.0) * 255)
             steer_int = int(clamp(steer, -1.0, 1.0) * 32767)
-            ui.write(e.EV_ABS, e.ABS_X,     steer_int)  # руль (джойстик)
+            # Газ/тормоз инвертированы для ABS_Y/ABS_RZ как у G25: 0 = нажато
+            gas_int = int((1.0 - clamp(gas, 0.0, 1.0)) * 32767)
+            brake_int = int((1.0 - clamp(brake, 0.0, 1.0)) * 32767)
+            ui.write(e.EV_ABS, e.ABS_X,     steer_int)  # руль
             ui.write(e.EV_ABS, e.ABS_WHEEL, steer_int)  # руль (wheel)
+            ui.write(e.EV_ABS, e.ABS_Y,     gas_int)    # газ (G25-style)
+            ui.write(e.EV_ABS, e.ABS_RZ,    brake_int)  # тормоз (G25-style)
             ui.write(e.EV_ABS, e.ABS_GAS,   g)          # Steam trigger (RT)
             ui.write(e.EV_ABS, e.ABS_BRAKE, b_)         # Steam trigger (LT)
-            ui.write(e.EV_ABS, e.ABS_Z,     g)          # wheel evdev throttle
-            ui.write(e.EV_ABS, e.ABS_RZ,    b_)         # wheel evdev brake
+            ui.write(e.EV_ABS, e.ABS_Z,     g)          # запасная газ
             ui.write(e.EV_KEY, e.BTN_A, a)
             ui.write(e.EV_KEY, e.BTN_B, b)
             ui.syn()

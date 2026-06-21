@@ -57,10 +57,11 @@ CAP = {
     e.EV_ABS: [
         (e.ABS_X,     AbsInfo(0, -32767, 32767, 0, 0, 0)),
         (e.ABS_WHEEL, AbsInfo(0, -32767, 32767, 0, 0, 0)),
+        (e.ABS_Y,     AbsInfo(0, 0, 32767, 0, 0, 0)),
+        (e.ABS_RZ,    AbsInfo(0, 0, 32767, 0, 0, 0)),
         (e.ABS_GAS,   AbsInfo(0, 0, 255, 0, 0, 0)),
         (e.ABS_BRAKE, AbsInfo(0, 0, 255, 0, 0, 0)),
         (e.ABS_Z,     AbsInfo(0, 0, 255, 0, 0, 0)),
-        (e.ABS_RZ,    AbsInfo(0, 0, 255, 0, 0, 0)),
     ],
     e.EV_FF: [e.FF_RUMBLE],
 }
@@ -473,12 +474,15 @@ def run_tui(port):
             steer_int = int(clamp(steer, -1.0, 1.0) * 32767)
             g = int(clamp(gas, 0.0, 1.0) * 255)
             b_ = int(clamp(brake, 0.0, 1.0) * 255)
+            gas_int = int((1.0 - clamp(gas, 0.0, 1.0)) * 32767)
+            brake_int = int((1.0 - clamp(brake, 0.0, 1.0)) * 32767)
             ui.write(e.EV_ABS, e.ABS_X,     steer_int)
             ui.write(e.EV_ABS, e.ABS_WHEEL, steer_int)
+            ui.write(e.EV_ABS, e.ABS_Y,     gas_int)
+            ui.write(e.EV_ABS, e.ABS_RZ,    brake_int)
             ui.write(e.EV_ABS, e.ABS_GAS,   g)
             ui.write(e.EV_ABS, e.ABS_BRAKE, b_)
             ui.write(e.EV_ABS, e.ABS_Z,     g)
-            ui.write(e.EV_ABS, e.ABS_RZ,    b_)
             ui.write(e.EV_KEY, e.BTN_A, a)
             ui.write(e.EV_KEY, e.BTN_B, b)
             ui.syn()
@@ -604,11 +608,16 @@ def run_notui(port, debug=False):
 
             g = int(clamp(gas, 0.0, 1.0) * 255)
             b_ = int(clamp(brake, 0.0, 1.0) * 255)
-            ui.write(e.EV_ABS, e.ABS_X, int(clamp(steer, -1.0, 1.0) * 32767))
-            ui.write(e.EV_ABS, e.ABS_GAS, g)
+            steer_int = int(clamp(steer, -1.0, 1.0) * 32767)
+            gas_int = int((1.0 - clamp(gas, 0.0, 1.0)) * 32767)
+            brake_int = int((1.0 - clamp(brake, 0.0, 1.0)) * 32767)
+            ui.write(e.EV_ABS, e.ABS_X,     steer_int)
+            ui.write(e.EV_ABS, e.ABS_WHEEL, steer_int)
+            ui.write(e.EV_ABS, e.ABS_Y,     gas_int)
+            ui.write(e.EV_ABS, e.ABS_RZ,    brake_int)
+            ui.write(e.EV_ABS, e.ABS_GAS,   g)
             ui.write(e.EV_ABS, e.ABS_BRAKE, b_)
-            ui.write(e.EV_ABS, e.ABS_Z, g)
-            ui.write(e.EV_ABS, e.ABS_RZ, b_)
+            ui.write(e.EV_ABS, e.ABS_Z,     g)
             ui.write(e.EV_KEY, e.BTN_A, a)
             ui.write(e.EV_KEY, e.BTN_B, b)
             ui.syn()
