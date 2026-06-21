@@ -2,6 +2,10 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+> **EN:** Use your Android phone as a wireless steering wheel for Linux racing games.
+> Phone tilt = wheel, touch pedals = gas/brake. All over Wi-Fi, no cables needed.
+> [Jump to English section ↓](#english)
+
 Android-приложение превращает смартфон в **беспроводной руль** для гоночных игр на Linux.
 Наклон телефона = поворот руля, тач-педали = газ/тормоз. Всё по Wi-Fi, без проводов.
 
@@ -127,6 +131,92 @@ V1,<steer -1..1>,<gas 0..1>,<brake 0..1>,<btnA 0/1>,<btnB 0/1>
 
 Ответ с виброотдачей: `R1,<rumble 0..1>`
 
-## Лицензия
+## English
 
-MIT — делай что хочешь.
+Veer turns your Android phone into a **wireless steering wheel** for Linux racing games.
+Phone accelerometer → wheel axis. Touch pedals → analog gas and brake.
+All over Wi-Fi via UDP, no cables, no extra hardware.
+
+```
+[ Phone: Veer App ] --UDP/Wi-Fi--> [ Linux: wheel.py ] --uinput--> [ Game / Steam ]
+```
+
+### Features
+
+- 🎮 **Steering** — phone tilt (accelerometer), 270° rotation
+- 🦶 **Analog pedals** — gas and brake (touch pressure)
+- 📶 **Wi-Fi** — UDP at ~100 Hz, 2–10 ms latency
+- 🔍 **Auto-discovery** — finds your PC via UDP broadcast
+- 🌀 **Force feedback** — game rumble → phone vibration
+- 🎯 **Steam Input compatible** — triggers work as Xbox RT/LT out of the box
+- 🕶️ **VR-ready** — no on-screen buttons, context menu on Back key
+- 🖥️ **TUI dashboard** — `pc/veer-tui.py` with real-time wheel, pedals, stats
+
+### Quick start
+
+**1. Linux receiver**
+
+```bash
+pip install -r pc/requirements.txt
+sudo modprobe uinput
+
+# udev rule for /dev/uinput (one-time)
+echo 'KERNEL=="uinput", MODE="0660", GROUP="input", OPTIONS+="static_node=uinput"' \
+  | sudo tee /etc/udev/rules.d/99-uinput.rules
+sudo usermod -aG input $USER
+# log out and back in
+
+# Run (pick one)
+python pc/wheel.py              # classic log mode
+python pc/veer-tui.py            # TUI dashboard
+```
+
+Open UDP ports if you have a firewall:
+```bash
+sudo ufw allow 5555/udp
+sudo ufw allow 5556/udp
+```
+
+**2. Phone — install APK**
+
+```bash
+cd android
+gradle assembleDebug
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+**3. Play**
+
+1. Run `python pc/wheel.py` on your PC
+2. Open Veer on your phone — press **Back** → **Connect** → **Find PC**
+3. Press **Center** (calibrate zero)
+4. Tilt your phone — the wheel turns
+
+> **Steam users:** If the wheel doesn't work in a game, **disable Steam Input**
+> for that game (Properties → Controller → Disable Steam Input).
+
+### Controls
+
+| Action | How |
+|--------|-----|
+| **Steer** | Tilt phone left/right (landscape) |
+| **Gas** | Press right pedal (harder = more) |
+| **Brake** | Press left pedal |
+| **Center calibration** | Back key → Center |
+| **Menu** | Back key on phone |
+| **Connect** | Back key → Connect |
+| **Exit** | Back key → Exit |
+
+### Protocol
+
+UDP text, one line:
+
+```
+V1,<steer -1..1>,<gas 0..1>,<brake 0..1>,<btnA 0/1>,<btnB 0/1>
+```
+
+Rumble response: `R1,<rumble 0..1>`
+
+### License
+
+MIT — do whatever you want.
