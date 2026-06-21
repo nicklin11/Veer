@@ -1,0 +1,10 @@
+<resources>
+    <style name="Theme.VeerWheel" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">#33CC66</item>
+        <item name="colorPrimaryDark">#0C0F12</item>
+        <item name="colorAccent">#33CC66</item>
+        <item name="android:windowBackground">#0C0F12</item>
+        <item name="android:statusBarColor">#0C0F12</item>
+        <item name="android:navigationBarColor">#0C0F12</item>
+    </style>
+</resources>

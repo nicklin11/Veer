@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0C0F12">
+
+    <!-- Статус-бар: только индикатор подключения -->
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="4dp"
+        android:paddingHorizontal="8dp"
+        android:text="—"
+        android:textColor="#33CC66"
+        android:textSize="11sp"
+        android:singleLine="true"
+        android:ellipsize="middle"
+        android:background="#161A1F" />
+
+    <!-- Руль + педали -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center">
+
+        <com.veer.wheel.PedalView
+            android:id="@+id/brakePedal"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp" />
+
+        <com.veer.wheel.WheelView
+            android:id="@+id/wheel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.4" />
+
+        <com.veer.wheel.PedalView
+            android:id="@+id/gasPedal"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+</LinearLayout>

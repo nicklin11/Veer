@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="#161A1F">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Подключение к ПК"
+        android:textColor="#E6E6E6"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="IP адрес ПК"
+        android:textColor="#9AA3AC"
+        android:textSize="12sp"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/ipField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="192.168.1.100"
+        android:textColor="#E6E6E6"
+        android:textColorHint="#5A626B"
+        android:backgroundTint="#2A2F36"
+        android:inputType="text"
+        android:imeOptions="actionDone"
+        android:singleLine="true" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Порт"
+        android:textColor="#9AA3AC"
+        android:textSize="12sp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/portField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="5555"
+        android:textColor="#E6E6E6"
+        android:textColorHint="#5A626B"
+        android:backgroundTint="#2A2F36"
+        android:inputType="number"
+        android:singleLine="true" />
+
+    <Button
+        android:id="@+id/findBtn"
+        style="@style/Widget.AppCompat.Button.Small"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Найти ПК"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/dialogStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text=""
+        android:textColor="#33CC66"
+        android:textSize="13sp"
+        android:singleLine="true"
+        android:ellipsize="middle" />
+</LinearLayout>
