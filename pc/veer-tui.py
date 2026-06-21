@@ -285,7 +285,7 @@ class VeerTUI:
         """Draws an ASCII steering wheel indicator."""
         # Wheel arc: 21 chars wide, steer maps to center offset
         half = (width - 2) // 2
-        pos = int(clamp(steer, -1.0, 1.0) * half)
+        pos = -int(clamp(steer, -1.0, 1.0) * half)
         center = half
         idx = center + pos
         chars = [" "] * (width - 2)
